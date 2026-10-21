@@ -157,7 +157,8 @@ SkillsManager/
 ├── skills/                       # Bundled skills directory
 │   ├── hello-world/              # Test & demo skill
 │   ├── code-review/              # Structured code review skill
-│   └── git-commit-helper/        # Conventional commit generator
+│   ├── git-commit-helper/        # Conventional commit generator
+│   └── improve-ui/               # High-craft UI/UX polish & redesign skill
 ├── package.json
 └── README.md
 ```
