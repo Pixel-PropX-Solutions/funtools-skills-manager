@@ -1,9 +1,24 @@
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
 import { homedir } from 'node:os';
 import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+export const PACKAGE_ROOT = join(__dirname, '..');
+
+export function getPackageVersion() {
+  try {
+    const pkgPath = join(PACKAGE_ROOT, 'package.json');
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
+    return pkg.version || '1.0.0';
+  } catch {
+    return '1.0.0';
+  }
+}
 
 export const GLOBAL_BASE = join(homedir(), '.gemini', 'config');
 export const GLOBAL_SKILLS_DIR = join(GLOBAL_BASE, 'skills');
+export const STORE_FILE_PATH = join(GLOBAL_BASE, '.skills-manager-store.json');
 
 /**
  * Locate project root by walking up looking for .git or .agents

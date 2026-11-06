@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import { join } from 'node:path';
 import { getAvailableSkills } from './registry.js';
+import { recordInstall, recordUninstall, getTrackedLocations } from './store.js';
 import {
   resolveTarget,
   ensureDir,
@@ -8,6 +9,7 @@ import {
   removeSkill,
   readManifest,
   writeManifest,
+  getPackageVersion,
 } from './utils.js';
 
 export function listAvailable() {
@@ -24,6 +26,22 @@ export function listAvailable() {
 }
 
 export function listInstalled(options = {}) {
+  if (options.allLocations) {
+    const locations = getTrackedLocations();
+    console.log(chalk.bold('\n🌍 All Tracked Skill Locations across System:\n'));
+    if (!locations.length) {
+      console.log(chalk.yellow('  No installed skills recorded across system.\n'));
+      return;
+    }
+    for (const loc of locations) {
+      console.log(`  📍 Scope: ${chalk.cyan(loc.scope)}`);
+      console.log(`     Directory: ${chalk.gray(loc.skillsDir)}`);
+      console.log(`     Skills:    ${loc.skills.map(s => chalk.green(s)).join(', ') || chalk.dim('none')}`);
+      console.log(`     Updated:   ${chalk.dim(loc.updatedAt || 'unknown')}\n`);
+    }
+    return;
+  }
+
   const target = resolveTarget(options);
   const manifest = readManifest(target.manifestPath);
   const names = Object.keys(manifest.installed || {});
@@ -42,13 +60,14 @@ export function listInstalled(options = {}) {
     const info = manifest.installed[name];
     console.log(`  ${chalk.green('●')} ${chalk.bold(name)}`);
     console.log(`    Installed at: ${chalk.dim(info.installedAt)}`);
-    console.log(`    Version:      ${chalk.dim(info.version || '1.0.0')}\n`);
+    console.log(`    Version:      ${chalk.dim(info.version || getPackageVersion())}\n`);
   }
 }
 
 export function install(names = [], options = {}) {
   const target = resolveTarget(options);
   const available = getAvailableSkills();
+  const currentVersion = getPackageVersion();
 
   if (!available.length) {
     console.log(chalk.red('\nNo skills found in the package registry to install.\n'));
@@ -81,20 +100,23 @@ export function install(names = [], options = {}) {
   console.log(chalk.bold(`\n🚀 Installing to ${chalk.cyan(target.scope)}:`));
   console.log(chalk.gray(`   Target: ${target.skillsDir}\n`));
 
+  const installedDirNames = [];
   for (const skill of toInstall) {
     const dest = join(target.skillsDir, skill.dirName);
-    const action = options.update ? 'Updated' : 'Installed';
     copySkill(skill.path, dest);
     manifest.installed[skill.dirName] = {
       name: skill.name,
       installedAt: new Date().toISOString(),
-      version: '1.0.0',
+      version: currentVersion,
     };
-    console.log(`  ${chalk.green('✔')} ${action} ${chalk.bold(skill.name)} → ${chalk.gray(dest)}`);
+    installedDirNames.push(skill.dirName);
+    console.log(`  ${chalk.green('✔')} Installed ${chalk.bold(skill.name)} → ${chalk.gray(dest)}`);
   }
 
   writeManifest(target.manifestPath, manifest);
-  console.log(chalk.green(`\n✨ Successfully ${options.update ? 'updated' : 'installed'} ${toInstall.length} skill(s)!\n`));
+  recordInstall(target, installedDirNames);
+
+  console.log(chalk.green(`\n✨ Successfully installed ${toInstall.length} skill(s)!\n`));
 }
 
 export function uninstall(names = [], options = {}) {
@@ -110,22 +132,24 @@ export function uninstall(names = [], options = {}) {
   console.log(chalk.bold(`\n🗑️  Uninstalling from ${chalk.cyan(target.scope)}:`));
   console.log(chalk.gray(`   Target: ${target.skillsDir}\n`));
 
-  let removed = 0;
+  const removedSkillNames = [];
   for (const name of names) {
     if (manifest.installed[name]) {
       const dest = join(target.skillsDir, name);
       removeSkill(dest);
       delete manifest.installed[name];
+      removedSkillNames.push(name);
       console.log(`  ${chalk.red('✖')} Removed ${chalk.bold(name)}`);
-      removed++;
     } else {
       console.log(`  ${chalk.yellow('⚠')} ${name} was not recorded in this target manifest, skipping`);
     }
   }
 
   writeManifest(target.manifestPath, manifest);
-  if (removed > 0) {
-    console.log(chalk.green(`\n✅ Removed ${removed} skill(s).\n`));
+  recordUninstall(target, removedSkillNames);
+
+  if (removedSkillNames.length > 0) {
+    console.log(chalk.green(`\n✅ Removed ${removedSkillNames.length} skill(s).\n`));
   } else {
     console.log(chalk.yellow('\nNo matching installed skills were removed.\n'));
   }
