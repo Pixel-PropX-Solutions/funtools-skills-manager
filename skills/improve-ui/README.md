@@ -11,9 +11,9 @@ or ask:
 > "Make this screen look cleaner and more modern"
 
 ## Package Structure
-- `SKILL.md`: Main workflow orchestrator (Phases 0–5, Safety Rails, Anti-Rainbow Rules, 8 Verification Gates).
-- `references/anti-ai-look.md`: Strict rules against generic AI styling tropes, anti-rainbow card uniformity, legacy color remediation, and the 6-point smell test.
-- `references/design-audit-checklist.md`: 9-category design audit checklist with severity ratings and semantic color verification.
+- `SKILL.md`: Main workflow orchestrator (Phases 0–5, Safety Rails, Anti-Rainbow Rules, Layout & Gap-First Rules, 8 Verification Gates).
+- `references/anti-ai-look.md`: Strict rules against generic AI styling tropes, anti-rainbow card uniformity, legacy color remediation, layout architecture (Flex default, Grid for complex UI), strict gap-first spacing, and the 7-point smell test.
+- `references/design-audit-checklist.md`: 9-category design audit checklist with severity ratings, semantic color verification, and layout/gap inspection.
 - `references/verification-gates.md`: Comprehensive guide to the 8 Verification Gates and diff isolation.
 - `templates/functional-contract.md`: Pre-change contract artifact guaranteeing frozen behavior.
 - `templates/final-report.md`: Structured delivery report.

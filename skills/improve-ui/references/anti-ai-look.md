@@ -21,6 +21,7 @@ This skill enforces strict adherence to authentic, disciplined product design. *
 | **Mixed Icon Styles & Stroke Weights** | Mixing 1.5px outline icons with solid glyphs or mismatched optical weights. | Use one unified icon set with identical stroke width (e.g., 1.5px or 2px throughout) and consistent viewBox sizing. |
 | **Gradient Text & Oversized Hero Typography** | Putting rainbow text gradients (`bg-clip-text text-transparent`) on standard headers or table titles. | Use crisp, solid-color typography with deliberate weight contrast (e.g., `font-semibold` with high contrast neutral). |
 | **Pointless Decorative Accents** | Adding decorative SVG blobs, floating particles, or abstract background patterns to functional apps. | Zero decorative noise. Every pixel must serve orientation, hierarchy, or interaction. |
+| **Child Margins/Paddings as Spacers & Alignment Hacks** | Using `mr-4`, `mb-2`, or child padding to create gaps breaks when items wrap, causes uneven outer edges, complicates RTL support, and creates fragile layouts. | Use an explicit container layout (`flex` or `grid`) and govern all inter-item spacing with `gap` (`gap-4`, `gap-x-2`). Default to Flexbox; use Grid for complex 2D layouts. Never use margin or padding for gaps between row/col siblings. |
 
 ---
 
@@ -100,9 +101,64 @@ This skill enforces strict adherence to authentic, disciplined product design. *
 - **Weight Contrast over Size Contrast:** Often a 14px `font-medium` label paired with a 20px `font-semibold` value is cleaner than massive 36px headings.
 - **Line Heights:** Tighter line-heights (`leading-tight` / 1.2–1.3) for large headings, relaxed line-heights (`leading-normal` / 1.5) for multi-line body text.
 
-### C. Spacing Rhythm & Grid
+### C. Layout Architecture, Grid & Gap-First Spacing
 - **4px / 8px Grid:** All margins, paddings, gaps, and heights must be multiples of 4 (4, 8, 12, 16, 20, 24, 32, 48, 64px). Never use arbitrary one-off values (e.g., `margin-top: 19px` or `padding: 13px 27px`).
 - **Proximity Principle:** Related elements (e.g., label + input) have smaller gap (e.g., 4px–6px); unrelated sections have larger gap (e.g., 24px–32px).
+- **Rule 1: Strict Gap-First Spacing (Padding for Inside, Margin for Outside, Gap for Between):**
+  - **`padding` is strictly for internal component insets** (inside a card, button, badge, modal, or input).
+  - **`margin` is strictly for outer separation** between major independent structural blocks or sections.
+  - **`gap` is the sole mechanism for separating sibling items in rows or columns.**
+  - **NEVER** use `margin-right`, `margin-bottom`, `margin-left`, `margin-top` or child `padding` to create spacing between items in a row or column sequence. Child margins break wrap boundaries, cause uneven outer edges, and complicate responsive or RTL layouts.
+- **Rule 2: Layout Selection Hierarchy (Flex by Default, Grid for Complex UI):**
+  - **Default to Flexbox (`display: flex` / `flex flex-row` / `flex flex-col`)** for 1-dimensional arrangements (navigation bars, toolbars, button groups, badge lists, input-with-label stacks, header rows).
+  - **Use CSS Grid (`display: grid` / `grid grid-cols-*`)** when the UI is complex and multi-dimensional (card grids, multi-track metric dashboards, responsive matrices where items must align across rows and columns simultaneously).
+  - In both Flex and Grid layouts, all inter-item spacing must be handled with `gap` (`gap-*`, `gap-x-*`, `gap-y-*`).
+- **Rule 3: Unified Single-Engine Alignment:**
+  - Always commit to one explicit layout model per container. Never mix floats, inline-block whitespace tricks, or manual spacer elements for alignment.
+- **Before vs. After: Layout & Gap Discipline:**
+  ```tsx
+  // ❌ BAD: Margin/padding hacks for sibling spacing, ad-hoc inline blocks
+  <div className="button-group">
+    <button className="mr-3 pr-2">Cancel</button>
+    <button className="mr-3">Save Draft</button>
+    <button>Publish</button>
+  </div>
+
+  // ✅ GOOD: Explicit Flex container with gap
+  <div className="flex items-center gap-3">
+    <button>Cancel</button>
+    <button>Save Draft</button>
+    <button>Publish</button>
+  </div>
+
+  // ❌ BAD: Stacking items with child margin-bottom
+  <form>
+    <div className="mb-4"><label>Name</label><input /></div>
+    <div className="mb-4"><label>Email</label><input /></div>
+    <div className="mb-4"><label>Role</label><input /></div>
+  </form>
+
+  // ✅ GOOD: Explicit Flex column with gap
+  <form className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1.5"><label>Name</label><input /></div>
+    <div className="flex flex-col gap-1.5"><label>Email</label><input /></div>
+    <div className="flex flex-col gap-1.5"><label>Role</label><input /></div>
+  </form>
+
+  // ❌ BAD: Complex 2D card layout with floating blocks and uneven child margins
+  <div className="card-container overflow-hidden">
+    <div className="float-left w-1/3 pr-4 mb-4">...</div>
+    <div className="float-left w-1/3 pr-4 mb-4">...</div>
+    <div className="float-left w-1/3 mb-4">...</div>
+  </div>
+
+  // ✅ GOOD: Explicit CSS Grid with gap
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div>...</div>
+    <div>...</div>
+    <div>...</div>
+  </div>
+  ```
 
 ### D. Information Density & Domain Fit
 - **Domain Respect:** A developer terminal, an ERP inventory screen, or a stock trading terminal *must be dense*. Do not "clean it up" by inflating padding, hiding essential data, or adding whitespace that requires endless scrolling.
@@ -122,7 +178,7 @@ This skill enforces strict adherence to authentic, disciplined product design. *
 
 ## 3. The "Smell Test" Checklist
 
-Before declaring any UI improvement complete in Phase 5, run this 6-question smell test:
+Before declaring any UI improvement complete in Phase 5, run this 7-question smell test:
 
 1. **The Template Test:**
    * *Question:* "Could this screen belong to any generic template or AI starter kit?"
@@ -142,5 +198,8 @@ Before declaring any UI improvement complete in Phase 5, run this 6-question sme
 6. **The Microcopy Test:**
    * *Question:* "Did we add vague marketing phrases or generic placeholder copy?"
    * *Action:* Revert to authentic domain terminology.
+7. **The Layout Engine & Gap-First Test:**
+   * *Question:* "Are any child items using margins (e.g. `mr-4`, `mb-2`) or paddings to push against adjacent row or column siblings? Are there any ad-hoc alignment hacks instead of explicit Flex or Grid?"
+   * *Action:* If yes, strip the child margins/paddings immediately. Wrap the items in an explicit single layout container (`flex` for 1D, `grid` for complex 2D) and apply the appropriate `gap` token.
 
 If any smell test fails, fix it before requesting review or declaring the task done.

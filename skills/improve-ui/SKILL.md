@@ -17,6 +17,7 @@ Improve the visual design, typography, spacing, and user experience of an existi
 4. **Small, reversible steps.** Polish one screen or component group at a time, running verification gates before proceeding.
 5. **Ask when uncertain.** If any visual change might plausibly affect behavior or user workflow, stop and ask immediately.
 6. **Color is functional, never decorative (The Anti-Rainbow Rule).** Color is reserved for semantic status (danger, warning, success, info) and primary brand actions. Sibling cards, widgets, and stat summary blocks must share uniform neutral surfaces. Never paint sibling cards in arbitrary rainbow hues.
+7. **Layout Discipline & Gap-First Spacing.** Every aligned sequence of items (row or column) must use a single explicit layout model (Flexbox by default, CSS Grid for complex 2D layouts). Inter-item spacing between sibling elements must exclusively use `gap` (`gap-*`), NEVER margins or paddings on child items.
 
 ---
 
@@ -36,6 +37,9 @@ Improve the visual design, typography, spacing, and user experience of an existi
 - **NEVER** delete existing functionality, secondary controls, or fields under the guise of "simplifying" or "decluttering" the UI.
 - **NEVER** perform unrelated refactoring or cleanup on business logic while styling.
 - **NEVER** apply rainbow or arbitrary decorative multi-color schemes across sibling cards, metrics, borders, or widgets (e.g. coloring 4 summary cards in 4 different colors). This looks cheap, toy-like, and destroys visual hierarchy.
+- **NEVER** use `margin` or `padding` on child elements to create gaps between items aligned in rows or columns.
+- **NEVER** use ad-hoc alignment hacks (floats, inline-block margins, pseudo-element spacers); **ALWAYS** declare an explicit single layout engine (`flex` or `grid`) on the parent container with `gap`.
+- **ALWAYS** default to Flexbox (`flex`) for 1D alignments, switch to CSS Grid (`grid`) for complex 2D layouts, and space siblings strictly using `gap`.
 - **ALWAYS** detect and eliminate pre-existing rainbow color clutter when modernizing UI, normalizing them into uniform neutral surfaces with semantic indicators.
 
 ---
@@ -88,7 +92,7 @@ Phase 5: Verification ◄─── Phase 4: Implement ◄─── Phase 3: Plan
 Audit the target scope using the criteria in [`references/design-audit-checklist.md`](./references/design-audit-checklist.md).
 Rate and prioritize every issue by severity:
 - **High:** WCAG AA contrast failures, broken hierarchy, unstyled interactive states, clipping/overflow, touch targets < 44px, decorative rainbow color chaos across sibling cards/metrics.
-- **Medium:** Broken 4/8px spacing rhythm, inconsistent font weights, missing tabular numbers on data, duplicate component styles, missing empty states, inconsistent non-semantic card tints.
+- **Medium:** Broken 4/8px spacing rhythm, using margin or padding on child elements to space out row/column items instead of container `gap`, mixing layout engines or using ad-hoc alignment hacks, inconsistent font weights, missing tabular numbers on data, duplicate component styles, missing empty states, inconsistent non-semantic card tints.
 - **Low:** Minor subpixel alignments, hover transition duration tweaks.
 
 ---
@@ -122,9 +126,15 @@ Rate and prioritize every issue by severity:
 4. **Active Anti-Rainbow Normalization:**
    - If the existing code already uses arbitrary rainbow colors across cards, borders, or icons, actively strip them.
    - Replace them with unified neutral surface tokens (`bg-card`, `bg-white`, `border-neutral-200`/`800`) and reserve color strictly for semantic data pills (e.g. positive delta green, negative delta red) or warning/alert callouts.
-5. **Structural Caution:**
+5. **Layout Architecture & Gap-First Discipline:**
+   - Every row, column, or aligned group must be an explicit single layout engine container (`flex` or `grid`). Never rely on ad-hoc floats or inline-block margins.
+   - **Default to Flexbox** (`flex`, `flex-row`, `flex-col`) for 1-dimensional item sequences (navbars, button clusters, form rows, label-input pairs).
+   - **Use CSS Grid** (`grid`, `grid-cols-*`) when the UI is complex and multi-dimensional (card matrices, responsive dashboard widget tracks, aligned 2D data grids).
+   - **Enforce Gap-First:** Eliminate all child-level margins (`mr-*`, `mb-*`, `ml-*`, `mt-*`) or paddings used solely for sibling separation. Replace them with container `gap` (`gap-*`, `gap-x-*`, `gap-y-*`).
+   - Margin is strictly reserved for outer section-level separation of decoupled blocks; padding is strictly reserved for internal component insets (inside cards, buttons, badges, inputs).
+6. **Structural Caution:**
    - If wrapping elements in a new flex/grid container is required, verify that keyboard tab order, click propagation, and overflow scroll behaviors remain intact.
-6. **No Simplification by Deletion:** Never remove a button, field, filter, or status label to make the interface look cleaner.
+7. **No Simplification by Deletion:** Never remove a button, field, filter, or status label to make the interface look cleaner.
 
 ---
 
@@ -140,7 +150,7 @@ Run the 8 gates defined in [`references/verification-gates.md`](./references/ver
 | **Gate 4: Contract Check** | Walk every row in the Functional Contract. | Every interactive element, handler, and test ID confirmed intact. |
 | **Gate 5: State Coverage** | Verify loading, empty, error, disabled, focus states. | Clean rendering without layout shifts or missing styles. |
 | **Gate 6: Visual Comparison** | Compare before/after screenshots or DOM. | Visible improvement; no clipping, overflow, truncation, or rainbow color clutter. |
-| **Gate 7: Accessibility & Palette**| Check WCAG AA contrast (>= 4.5:1), touch targets (>= 44px), labels, motion, and semantic-only color discipline. | Zero accessibility regressions; colors restricted strictly to semantic status and brand CTA. |
+| **Gate 7: Accessibility & Palette**| Check WCAG AA contrast (>= 4.5:1), touch targets (>= 44px), labels, motion, semantic-only color discipline, and gap-first alignment. | Zero accessibility regressions; colors restricted strictly to semantic status and brand CTA; spacing strictly uses container `gap` with explicit flex/grid. |
 | **Gate 8: Responsive & Theme** | Test mobile (375px) vs desktop (1280px+), light/dark modes. | No horizontal overflow; responsive and theme-consistent. |
 
 **Gate Rule:** If any gate fails, stop immediately, fix or revert, and re-verify. Never declare success with a failing or unverified gate. If an environment cannot run a gate (e.g., no headless browser), mark it as `NOT RUN: [Reason]`.

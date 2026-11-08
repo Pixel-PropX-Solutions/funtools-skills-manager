@@ -14,6 +14,7 @@ During **Phase 2 (Design Audit)**, evaluate the target screen or component group
   - Touch targets below 44×44px on mobile or 32×32px on desktop.
 - **Medium Severity (P2):**
   - Spacing rhythm inconsistencies (arbitrary pixels breaking the 4/8px grid).
+  - Using margins or paddings on child elements to space out row/column items instead of container `gap`; mixing layout engines or using ad-hoc alignment hacks.
   - Mixed font weights, inconsistent heading sizes, or lack of tabular numbers for aligned data.
   - Inconsistent component styling (e.g., three different primary button styles across one screen).
   - Missing empty or loading state polish.
@@ -33,6 +34,9 @@ During **Phase 2 (Design Audit)**, evaluate the target screen or component group
 
 ## 2. Spacing Rhythm & Alignment
 - [ ] **Scale Conformity:** Do all margins, paddings, and gaps adhere to a standard scale (4, 8, 12, 16, 20, 24, 32, 48px)?
+- [ ] **Gap-First Inter-Item Spacing:** Are gaps between sibling items in rows or columns created exclusively via container `gap` (`gap-*`, `gap-x-*`, `gap-y-*`), rather than margins (`mr-*`, `mb-*`, `margin-right`, `margin-bottom`) or paddings on individual children?
+- [ ] **Single Explicit Layout Engine (Flex or Grid):** Does every row or column alignment explicitly use Flexbox or CSS Grid? Are legacy floats, inline-block spacing hacks, or manual margin alignments eliminated?
+- [ ] **Flex vs. Grid Selection:** Is Flexbox used for standard 1D linear stacks and rows, and CSS Grid used when layouts require multi-dimensional (2D) alignment across rows and columns?
 - [ ] **Grid Alignment:** Are label edges, input borders, and button baselines aligned to a shared grid edge rather than wandering haphazardly?
 - [ ] **Proximity Logic:** Is the space between associated items (e.g. input label to input field: 4–6px) significantly smaller than space between independent groups (e.g. field groups: 20–24px)?
 - [ ] **Internal Component Padding:** Is internal padding consistent across symmetrical elements (e.g. button horizontal padding proportional to text size)?

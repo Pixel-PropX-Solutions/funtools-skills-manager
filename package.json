@@ -1,6 +1,6 @@
 {
   "name": "@funtools/skills-manager",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "CLI tool to manage and install custom AI skills for Antigravity and Gemini code IDEs",
   "bin": {
     "skills-manager": "./bin/skills-manager.js"
