@@ -28,7 +28,8 @@ src/
         └── screens/
             └── ProfileScreen/         # ui-clean-code component
                 ├── index.tsx          # Table of Contents
-                ├── useProfile.ts
+                ├── hooks/
+                │   └── useProfile.ts  # Logic hook in hooks/
                 └── UI/
                     ├── ProfileHeader/
                     │   └── index.tsx
@@ -75,10 +76,10 @@ features/profile/screens/ProfileScreen/
 ## 3. Server Actions & Mutations
 
 - Server Actions should live in a colocated `actions.ts` file or within the feature's API layer.
-- The custom hook (`useProfile.ts`) can invoke the server action using `useTransition` or `useActionState`, keeping the UI view purely declarative.
+- The custom hook (`hooks/useProfile.ts`) can invoke the server action using `useTransition` or `useActionState`, keeping the UI view purely declarative.
 
 ```tsx
-// useProfile.ts
+// hooks/useProfile.ts
 'use client';
 
 import { useTransition } from 'react';
@@ -106,3 +107,29 @@ Next.js route groups (folders enclosed in parentheses like `(auth)`, `(dashboard
 When colocating components:
 - If a component is used **only** within routes inside `(auth)`, you may colocate it in `app/(auth)/_components/` or inside `features/auth/`.
 - `features/` remains the preferred home for domain-rich screens and UI trees, keeping `app/` strictly as the routing and layout skeleton.
+
+---
+
+## 5. Strict Prohibition: No Loose Files in App Router Segments
+
+AI tools often make the mistake of creating files directly by name at the route directory level next to `page.tsx`. This causes route confusion, directory clutter, and breaks clean code boundaries.
+
+```
+# ❌ NEVER drop loose hooks, components, or helpers directly under app/.../
+app/(dashboard)/profile/
+├── page.tsx
+├── useForm.ts        <-- ❌ VIOLATION: Loose hook at route root!
+├── types.ts          <-- ❌ VIOLATION: Loose types at route root!
+└── UserCard.tsx      <-- ❌ VIOLATION: Loose component without UI/ folder!
+
+# ✅ ALWAYS organize under categorical group folders or within features/
+app/(dashboard)/profile/
+├── page.tsx          # Pure route entry coordinator
+├── hooks/
+│   └── useForm.ts    # Grouped under hooks/
+├── types/
+│   └── index.ts      # Grouped under types/
+└── UI/
+    └── UserCard/     # Grouped under UI/
+        └── index.tsx
+```

@@ -15,7 +15,7 @@ A single `.tsx` file that stretches across 400–800 lines, mixing network reque
 - Re-render lag: A state update at the top re-evaluates the entire monolithic tree.
 
 ### Refactoring Recipe:
-1. **Audit & Isolate Logic:** Move state variables, effects, and API calls into a colocated `use[ScreenName].ts` custom hook.
+1. **Audit & Isolate Logic:** Move state variables, effects, and API calls into a custom hook located in a `hooks/` subfolder (e.g. `hooks/use[ScreenName].ts`).
 2. **Identify Visual Clusters:** Find distinct sub-views (e.g. `Header`, `FilterBar`, `List`, `PaginationModal`).
 3. **Create `UI/` Directory:** Create sub-component folders under `UI/` for each cluster.
 4. **Rewrite Entry Point:** Re-assemble `index.tsx` so it reads as an executive table of contents under 80 lines.
@@ -81,13 +81,15 @@ export function ItemScreen({ isEdit }: { isEdit?: boolean }) {
 
 ### Refactoring Recipe:
 1. Extract the shared form presentation to `features/items/shared/UI/ItemForm/index.tsx`.
-2. Create `CreateItemScreen/` with its own `useCreateItem.ts` hook.
-3. Create `UpdateItemScreen/` with its own `useUpdateItem.ts` hook.
+2. Create `CreateItemScreen/` with its own `hooks/useCreateItem.ts` hook.
+3. Create `UpdateItemScreen/` with its own `hooks/useUpdateItem.ts` hook.
 4. Both screens render `<ItemForm />` passing their respective values and handlers.
 
 ```tsx
 // ✅ GOOD: Clean paired screens
 // CreateItemScreen/index.tsx
+import { useCreateItem } from './hooks/useCreateItem';
+
 export function CreateItemScreen() {
   const { values, isSubmitting, handleCreate } = useCreateItem();
 
@@ -147,3 +149,48 @@ FeedScreen
   <PostCard action={<FavoriteButton onToggle={handleToggle} />} />
   ```
 - **Solution B (Colocated Context):** If multiple sub-components need access to screen-wide state, create a lightweight React Context colocated inside the screen folder (`FeedScreen/FeedContext.tsx`).
+
+---
+
+## 6. Anti-Pattern 6: Loose Files Without Group Folders (The Naked File Anti-Pattern)
+
+### The Symptom:
+Creating auxiliary code files directly by name at the root of a page, screen, or component folder without placing them inside a categorical parent group folder (e.g. dropping `useForm.ts`, `types.ts`, `validate.ts`, or child `.tsx` files directly inside `app/(dashboard)/profile/` or inside a screen directory).
+
+```
+# ❌ BAD: Naked files floating at page/screen root
+app/(dashboard)/profile/
+├── page.tsx
+├── useForm.ts             <-- ❌ Naked hook at route root
+├── types.ts               <-- ❌ Naked types at route root
+├── validate.ts            <-- ❌ Naked helper at route root
+└── ProfileCard.tsx        <-- ❌ Naked component without UI/ folder
+```
+
+### Why It Hurts:
+- **Visual Clutter & Disorientation:** The directory root loses its clear entry point role (`page.tsx` or `index.tsx`) and becomes a disorganized grab-bag.
+- **Breaks Mental Models:** Developers scanning a folder cannot immediately separate presentation from business logic from type definitions.
+- **Tooling & Scalability Friction:** Framework file-based routers (like Next.js) may mistake loose files for route segments or colocation hazards.
+- **Naming Conflicts:** Multiple loose hooks or components collide quickly without subfolder namespacing.
+
+### Refactoring Recipe:
+1. **Preserve Single Entry Point:** Ensure only the designated coordinator (`page.tsx` or `index.tsx`) remains at the root level.
+2. **Group Hooks in `hooks/`:** Move all custom hooks into a `hooks/` subfolder (e.g. `hooks/useForm.ts`).
+3. **Group Presentation in `UI/` (or `components/`):** Move all child components into `UI/<ComponentName>/index.tsx`.
+4. **Group Types in `types/`:** Move interfaces and type definitions into `types/index.ts` or `types/<domain>.types.ts`.
+5. **Group Utilities in `utils/`:** Move validators, parsers, and formatters into `utils/<helper>.ts`.
+
+```
+# ✅ GOOD: Strict categorical grouping
+app/(dashboard)/profile/
+├── page.tsx               # Thin entry point (< 30 lines)
+├── hooks/
+│   └── useForm.ts         # Logic hook
+├── types/
+│   └── index.ts           # Types
+├── utils/
+│   └── validate.ts        # Pure validation helper
+└── UI/
+    └── ProfileCard/       # Presentation component
+        └── index.tsx
+```

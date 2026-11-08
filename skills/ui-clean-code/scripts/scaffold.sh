@@ -69,7 +69,9 @@ HOOK_IMPORT=""
 HOOK_CALL=""
 if [[ "$WITH_HOOK" == true ]]; then
   HOOK_NAME="use${COMPONENT_NAME}"
-  HOOK_FILE="${COMPONENT_PATH}/${HOOK_NAME}.ts"
+  HOOK_DIR="${COMPONENT_PATH}/hooks"
+  mkdir -p "${HOOK_DIR}"
+  HOOK_FILE="${HOOK_DIR}/${HOOK_NAME}.ts"
   
   cat << EOF > "${HOOK_FILE}"
 import { useState } from 'react';
@@ -83,8 +85,8 @@ export function ${HOOK_NAME}() {
   };
 }
 EOF
-  echo "  Created hook: ${HOOK_NAME}.ts"
-  HOOK_IMPORT="import { ${HOOK_NAME} } from './${HOOK_NAME}';"
+  echo "  Created hook: hooks/${HOOK_NAME}.ts"
+  HOOK_IMPORT="import { ${HOOK_NAME} } from './hooks/${HOOK_NAME}';"
   HOOK_CALL="  const { isLoading } = ${HOOK_NAME}();\n"
 fi
 

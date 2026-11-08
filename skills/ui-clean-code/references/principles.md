@@ -16,7 +16,7 @@ In modern component-based frontend development (React, React Native, Next.js), U
 
 ### Application in `ui-clean-code`:
 - **View Purity:** The component file (`index.tsx`) is solely responsible for declaring the visual hierarchy and layout composition.
-- **Hook Isolation:** All state mutations, form validation, and data operations are isolated into dedicated, colocated custom hooks (e.g. `useCreateProfile.ts`).
+- **Hook Isolation:** All state mutations, form validation, and data operations are isolated into dedicated custom hooks inside a `hooks/` folder (e.g. `hooks/useCreateProfile.ts`).
 - **Sub-Component Scope:** Sub-components inside `UI/` handle only their specific visual fragment.
 
 ---

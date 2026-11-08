@@ -17,7 +17,8 @@ Keep the top-level screen coordinator focused on navigation and shell layout, wh
 ```
 features/profile/screens/CreateProfileScreen/
 ├── index.tsx                  # Screen Coordinator & Table of Contents
-├── useCreateProfile.ts        # Business logic & navigation handlers
+├── hooks/
+│   └── useCreateProfile.ts    # Business logic & navigation handlers
 └── UI/
     ├── Header/
     │   └── index.tsx
@@ -36,7 +37,7 @@ features/profile/screens/CreateProfileScreen/
 // features/profile/screens/CreateProfileScreen/index.tsx
 import React from 'react';
 import { SafeAreaView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
-import { useCreateProfile } from './useCreateProfile';
+import { useCreateProfile } from './hooks/useCreateProfile';
 import { StepsIndicator } from './UI/StepsIndicator';
 import { Steps } from './UI/Steps';
 
@@ -90,6 +91,6 @@ UI/StepsIndicator/
 ## 3. Navigation Hook Encapsulation
 
 Avoid passing raw navigation props (`navigation`, `route`) through deep component layers.
-- Call `useNavigation()` and `useRoute()` inside the screen's custom hook (`useCreateProfile.ts`).
+- Call `useNavigation()` and `useRoute()` inside the screen's custom hook (`hooks/useCreateProfile.ts`).
 - Expose semantic action callbacks (e.g. `onComplete: () => navigation.navigate('Home')`) to the view layer.
 - Sub-components in `UI/` should receive standard callback functions (`onNext`, `onBack`), keeping them decoupled from navigation libraries.

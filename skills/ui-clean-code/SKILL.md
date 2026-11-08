@@ -26,6 +26,7 @@ Guide and enforce clean, maintainable, and predictable UI code structure across 
    - Multiple features → root `src/shared/UI/` or `src/components/ui/` only if domain-agnostic.
 6. **Preserve Domain Feature Ownership**: If a component embodies a specific domain model (e.g. `UserProfileDrawer` in `users`), keep it in its owning feature even if other features consume it. Consumers import directly from the owning feature's public API (`@/features/users`). Never demote domain components to global shared folders just because a second consumer exists.
 7. **Pragmatic, Structure-Driven Splitting**: Component splitting is dictated by UI structure, cognitive load, and readability—not premature line-counting. Do not fragment code into dozens of tiny files unnecessarily. Split when a component becomes difficult to understand or manage, or when it approaches the default ceiling of **~400 lines**.
+8. **Strict Categorical Grouping (No Loose Code Files)**: Every single auxiliary code file must reside in a dedicated, categorical group folder (`hooks/`, `UI/`, `types/`, `utils/`, `services/`, etc.). The only file permitted at the root of a component, screen, or page directory is the single entry-point coordinator (`index.tsx` or route `page.tsx`). Never leave loose hooks (such as `useForm.ts`), types, helpers, or child components floating naked at the page top level.
 
 ---
 
@@ -33,6 +34,7 @@ Guide and enforce clean, maintainable, and predictable UI code structure across 
 
 ### Absolute Prohibitions (Never Do):
 - **NEVER** write a monolithic screen file that mixes data fetching, form validation, complex state, and 300+ lines of raw JSX markup.
+- **NEVER** create loose auxiliary code files (e.g. `useForm.ts`, `types.ts`, `utils.ts`, or child components) directly at the root of a page, screen, or component directory without their respective categorical group folder (`hooks/`, `UI/`, `types/`, `utils/`).
 - **NEVER** combine Create and Edit flows into a single component choked with `isEdit ? ... : ...` conditionals.
 - **NEVER** move a domain-owned component out of its feature and into root `components/` simply because another feature needs it.
 - **NEVER** split components prematurely into 10-line files if the component is cohesive, readable, and easy to maintain.
@@ -83,11 +85,12 @@ Before writing or moving any file, determine all current and anticipated consume
    - Identify distinct UI sub-structures (e.g., steps in a wizard, tabs, distinct panels, complex table filters).
    - If the component is simple, cohesive, and under the ~400-line ceiling: Keep it together.
    - If it is complex, hard to navigate, or has distinct visual sections: Split child components into a local `UI/` directory.
-2. **Filesystem Mirrors Component Tree**:
+2. **Filesystem Mirrors Component Tree (Strict Categorical Grouping)**:
    ```
    CreateProfile/
    ├── index.tsx              # Table of Contents
-   ├── useCreateProfile.ts    # Logic hook
+   ├── hooks/
+   │   └── useCreateProfile.ts # Logic hook inside hooks/ folder
    └── UI/
        ├── StepsIndicator/
        │   └── index.tsx
@@ -99,14 +102,15 @@ Before writing or moving any file, determine all current and anticipated consume
                └── index.tsx
    ```
 
-### Phase 4: Logic / UI Separation (Custom Hooks)
-1. **Extract State, Queries & Handlers**:
+### Phase 4: Logic / UI Separation (Custom Hooks in `hooks/`)
+1. **Extract State, Queries & Handlers into Dedicated `hooks/` Folder**:
    - UI components should focus purely on presentation and visual layout.
-   - Place all form state, API calls, side-effects, and handler logic into a colocated custom hook (e.g. `useCreateProfile.ts`).
+   - Place all form state, API calls, side-effects, and handler logic into a custom hook located in a `hooks/` subfolder (e.g. `hooks/useCreateProfile.ts` or `hooks/useForm.ts`).
+   - **Never** leave custom hooks floating loose at the page or screen root level.
 2. **Paired Screens Rule**:
    - If building Create and Edit views for an entity (e.g., `Product`):
-     - Create `CreateProductScreen/` with `useCreateProduct.ts`.
-     - Create `UpdateProductScreen/` with `useUpdateProduct.ts`.
+     - Create `CreateProductScreen/` with `hooks/useCreateProduct.ts`.
+     - Create `UpdateProductScreen/` with `hooks/useUpdateProduct.ts`.
      - Create a single shared `ProductForm/` in `features/products/shared/UI/ProductForm/` taking pure props (`values`, `onSubmit`, `isSubmitting`, `submitLabel`).
 
 ### Phase 5: Table-of-Contents Entry Assembly

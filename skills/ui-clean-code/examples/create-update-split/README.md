@@ -23,10 +23,12 @@ features/products/
 ├── screens/
 │   ├── CreateProductScreen/
 │   │   ├── index.tsx                # Renders ItemForm with create callbacks
-│   │   └── useCreateProduct.ts      # Pure creation logic & mutation
+│   │   └── hooks/
+│   │       └── useCreateProduct.ts  # Pure creation logic & mutation in hooks/
 │   └── UpdateProductScreen/
 │       ├── index.tsx                # Renders ItemForm with update callbacks
-│       └── useUpdateProduct.ts      # Fetch by ID, dirty tracking, patch mutation
+│       └── hooks/
+│           └── useUpdateProduct.ts  # Fetch by ID, dirty tracking, patch mutation in hooks/
 └── shared/
     └── UI/
         └── ProductForm/             # Shared presentation form (zero business logic)
@@ -124,10 +126,10 @@ export function ProductForm({
 
 ---
 
-### File: `features/products/screens/CreateProductScreen/useCreateProduct.ts` (Logic Hook)
+### File: `features/products/screens/CreateProductScreen/hooks/useCreateProduct.ts` (Logic Hook)
 ```ts
 import { useState } from 'react';
-import { ProductFormValues } from '../../shared/UI/ProductForm';
+import { ProductFormValues } from '../../../shared/UI/ProductForm';
 
 export function useCreateProduct() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -159,7 +161,7 @@ export function useCreateProduct() {
 ### File: `features/products/screens/CreateProductScreen/index.tsx` (Screen Entry)
 ```tsx
 import React from 'react';
-import { useCreateProduct } from './useCreateProduct';
+import { useCreateProduct } from './hooks/useCreateProduct';
 import { ProductForm } from '../../shared/UI/ProductForm';
 
 export function CreateProductScreen() {
@@ -182,10 +184,10 @@ export function CreateProductScreen() {
 
 ---
 
-### File: `features/products/screens/UpdateProductScreen/useUpdateProduct.ts` (Logic Hook)
+### File: `features/products/screens/UpdateProductScreen/hooks/useUpdateProduct.ts` (Logic Hook)
 ```ts
 import { useState, useEffect } from 'react';
-import { ProductFormValues } from '../../shared/UI/ProductForm';
+import { ProductFormValues } from '../../../shared/UI/ProductForm';
 
 export function useUpdateProduct(productId: string) {
   const [product, setProduct] = useState<ProductFormValues | null>(null);
@@ -227,7 +229,7 @@ export function useUpdateProduct(productId: string) {
 ### File: `features/products/screens/UpdateProductScreen/index.tsx` (Screen Entry)
 ```tsx
 import React from 'react';
-import { useUpdateProduct } from './useUpdateProduct';
+import { useUpdateProduct } from './hooks/useUpdateProduct';
 import { ProductForm } from '../../shared/UI/ProductForm';
 
 export function UpdateProductScreen({ productId }: { productId: string }) {

@@ -16,6 +16,7 @@ Improve the visual design, typography, spacing, and user experience of an existi
 3. **Respect the existing product.** Evolve the application's native design language and brand identity; never overwrite it with an off-the-shelf template look.
 4. **Small, reversible steps.** Polish one screen or component group at a time, running verification gates before proceeding.
 5. **Ask when uncertain.** If any visual change might plausibly affect behavior or user workflow, stop and ask immediately.
+6. **Color is functional, never decorative (The Anti-Rainbow Rule).** Color is reserved for semantic status (danger, warning, success, info) and primary brand actions. Sibling cards, widgets, and stat summary blocks must share uniform neutral surfaces. Never paint sibling cards in arbitrary rainbow hues.
 
 ---
 
@@ -34,6 +35,8 @@ Improve the visual design, typography, spacing, and user experience of an existi
 - **NEVER** add heavy new dependencies (e.g. new styling libraries, component packages) without explicit user approval.
 - **NEVER** delete existing functionality, secondary controls, or fields under the guise of "simplifying" or "decluttering" the UI.
 - **NEVER** perform unrelated refactoring or cleanup on business logic while styling.
+- **NEVER** apply rainbow or arbitrary decorative multi-color schemes across sibling cards, metrics, borders, or widgets (e.g. coloring 4 summary cards in 4 different colors). This looks cheap, toy-like, and destroys visual hierarchy.
+- **ALWAYS** detect and eliminate pre-existing rainbow color clutter when modernizing UI, normalizing them into uniform neutral surfaces with semantic indicators.
 
 ---
 
@@ -84,8 +87,8 @@ Phase 5: Verification ◄─── Phase 4: Implement ◄─── Phase 3: Plan
 
 Audit the target scope using the criteria in [`references/design-audit-checklist.md`](./references/design-audit-checklist.md).
 Rate and prioritize every issue by severity:
-- **High:** WCAG AA contrast failures, broken hierarchy, unstyled interactive states, clipping/overflow, touch targets < 44px.
-- **Medium:** Broken 4/8px spacing rhythm, inconsistent font weights, missing tabular numbers on data, duplicate component styles, missing empty states.
+- **High:** WCAG AA contrast failures, broken hierarchy, unstyled interactive states, clipping/overflow, touch targets < 44px, decorative rainbow color chaos across sibling cards/metrics.
+- **Medium:** Broken 4/8px spacing rhythm, inconsistent font weights, missing tabular numbers on data, duplicate component styles, missing empty states, inconsistent non-semantic card tints.
 - **Low:** Minor subpixel alignments, hover transition duration tweaks.
 
 ---
@@ -95,12 +98,13 @@ Rate and prioritize every issue by severity:
 > **MANDATORY:** You MUST read [`references/anti-ai-look.md`](./references/anti-ai-look.md) before drafting the plan.
 
 1. **Check Against AI Tells:**
-   - Verify that your proposed design avoids: purple/cyan neon gradients, frosted glass blur on everything, cards-inside-cards with giant radii, emoji as icons, generic marketing copy, gratuitous bouncy animations, and symmetrical feature grids.
+   - Verify that your proposed design avoids: rainbow/multi-colored cards (e.g. 4 stat cards each styled with a different color), purple/cyan neon gradients, frosted glass blur on everything, cards-inside-cards with giant radii, emoji as icons, generic marketing copy, gratuitous bouncy animations, and symmetrical feature grids.
+   - Enforce card and surface uniformity: all sibling summary cards must share a single, disciplined neutral surface treatment.
 2. **Draft the Plan:**
    - Formulate a concrete checklist of changes mapped directly to the audit findings.
    - Order items by impact and risk (highest visual impact with lowest structural risk first).
    - Mark every item explicitly:
-     - **Safe:** Pure styling change (Tailwind classes, CSS rules, color tokens, typography).
+     - **Safe:** Pure styling change (Tailwind classes, CSS rules, color tokens, typography, neutralizing rainbow cards).
      - **Needs care:** Structural layout changes (wrapping in layout containers, changing flex/grid layouts) that could impact focus order, scrolling constraints, or event bubbling.
 3. **User Approval Gate:**
    - Present the audit findings and plan.
@@ -115,9 +119,12 @@ Rate and prioritize every issue by severity:
 2. **Centralize Tokens:** Update shared theme variables or reusable components first rather than sprinkling hardcoded one-off values across multiple files.
 3. **Preserve All Identifiers & Logic Hooks:**
    - Do NOT rename, delete, or reorder: event handlers, function parameters, component props, state hooks, controllers, route names, `data-testid` attributes, or accessibility keys.
-4. **Structural Caution:**
+4. **Active Anti-Rainbow Normalization:**
+   - If the existing code already uses arbitrary rainbow colors across cards, borders, or icons, actively strip them.
+   - Replace them with unified neutral surface tokens (`bg-card`, `bg-white`, `border-neutral-200`/`800`) and reserve color strictly for semantic data pills (e.g. positive delta green, negative delta red) or warning/alert callouts.
+5. **Structural Caution:**
    - If wrapping elements in a new flex/grid container is required, verify that keyboard tab order, click propagation, and overflow scroll behaviors remain intact.
-5. **No Simplification by Deletion:** Never remove a button, field, filter, or status label to make the interface look cleaner.
+6. **No Simplification by Deletion:** Never remove a button, field, filter, or status label to make the interface look cleaner.
 
 ---
 
@@ -132,8 +139,8 @@ Run the 8 gates defined in [`references/verification-gates.md`](./references/ver
 | **Gate 3: Diff Audit** | Run `git diff` or [`scripts/diff-audit.sh`](./scripts/diff-audit.sh). | Zero non-presentational lines modified. |
 | **Gate 4: Contract Check** | Walk every row in the Functional Contract. | Every interactive element, handler, and test ID confirmed intact. |
 | **Gate 5: State Coverage** | Verify loading, empty, error, disabled, focus states. | Clean rendering without layout shifts or missing styles. |
-| **Gate 6: Visual Comparison** | Compare before/after screenshots or DOM. | Visible improvement; no clipping, overflow, or truncation. |
-| **Gate 7: Accessibility (a11y)**| Check WCAG AA contrast (>= 4.5:1), touch targets (>= 44px), labels, motion. | Zero accessibility regressions. |
+| **Gate 6: Visual Comparison** | Compare before/after screenshots or DOM. | Visible improvement; no clipping, overflow, truncation, or rainbow color clutter. |
+| **Gate 7: Accessibility & Palette**| Check WCAG AA contrast (>= 4.5:1), touch targets (>= 44px), labels, motion, and semantic-only color discipline. | Zero accessibility regressions; colors restricted strictly to semantic status and brand CTA. |
 | **Gate 8: Responsive & Theme** | Test mobile (375px) vs desktop (1280px+), light/dark modes. | No horizontal overflow; responsive and theme-consistent. |
 
 **Gate Rule:** If any gate fails, stop immediately, fix or revert, and re-verify. Never declare success with a failing or unverified gate. If an environment cannot run a gate (e.g., no headless browser), mark it as `NOT RUN: [Reason]`.

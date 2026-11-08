@@ -23,7 +23,8 @@ The filesystem directly mirrors the component containment hierarchy:
 ```
 CreateProfile/
 ├── index.tsx                  # Table of Contents (< 30 lines)
-├── useCreateProfile.ts        # Business logic, state, and step navigation
+├── hooks/
+│   └── useCreateProfile.ts    # Business logic, state, and step navigation
 └── UI/
     ├── StepsIndicator/
     │   └── index.tsx          # Progress bar / step badges
@@ -46,7 +47,7 @@ Notice how `index.tsx` contains zero business logic, zero inline fetch requests,
 
 ```tsx
 import React from 'react';
-import { useCreateProfile } from './useCreateProfile';
+import { useCreateProfile } from './hooks/useCreateProfile';
 import { StepsIndicator } from './UI/StepsIndicator';
 import { Steps } from './UI/Steps';
 
@@ -71,7 +72,7 @@ export function CreateProfile() {
 
 ---
 
-### File: `CreateProfile/useCreateProfile.ts` (Logic Boundary)
+### File: `CreateProfile/hooks/useCreateProfile.ts` (Logic Boundary)
 All state management, field updating, and navigation calculations are encapsulated in this custom hook:
 
 ```ts
@@ -178,7 +179,7 @@ Delegates rendering to the specific active step component:
 
 ```tsx
 import React from 'react';
-import { ProfileFormData } from '../../useCreateProfile';
+import { ProfileFormData } from '../../hooks/useCreateProfile';
 import { PersonalInfo } from './PersonalInfo';
 import { AccountDetails } from './AccountDetails';
 import { Review } from './Review';
@@ -211,7 +212,7 @@ export function Steps({ currentStep, data, onUpdate, onNext, onBack, onSubmit }:
 ### File: `CreateProfile/UI/Steps/PersonalInfo/index.tsx` (Leaf Step)
 ```tsx
 import React from 'react';
-import { ProfileFormData } from '../../../useCreateProfile';
+import { ProfileFormData } from '../../../hooks/useCreateProfile';
 
 export interface PersonalInfoProps {
   data: ProfileFormData;

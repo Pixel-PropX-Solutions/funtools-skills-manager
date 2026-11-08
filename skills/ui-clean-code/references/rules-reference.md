@@ -34,7 +34,8 @@ The filesystem folder tree must mirror the runtime visual containment tree of th
   # Folder tree mirrors visual containment
   CreateProfile/
   ├── index.tsx                  # <StepsIndicator /> + <Steps />
-  ├── useCreateProfile.ts        # Logic hook
+  ├── hooks/
+  │   └── useCreateProfile.ts    # Logic hook in hooks/ folder
   └── UI/
       ├── StepsIndicator/
       │   └── index.tsx
@@ -164,13 +165,15 @@ Every component lives in its own dedicated directory containing an `index.tsx` e
 
 ### Rule 2.2: Local `UI/` Subfolder for Decomposition
 When a component is decomposed into sub-components, place those child sub-components inside a local `UI/` folder within that component's directory.
-- **Rationale:** Explicitly separates visual child components from hooks (`useFoo.ts`), types (`types.ts`), and helper utilities (`utils.ts`).
+- **Rationale:** Explicitly separates visual child components from hooks (`hooks/`), types (`types/`), and helper utilities (`utils/`).
 - **Good Example:**
   ```
   UserProfileCard/
   ├── index.tsx                # Main entry
-  ├── useUserProfile.ts        # Logic hook
-  ├── types.ts                 # Local types
+  ├── hooks/
+  │   └── useUserProfile.ts    # Logic hook
+  ├── types/
+  │   └── index.ts             # Local types
   └── UI/
       ├── AvatarBadge/
       │   └── index.tsx
@@ -195,6 +198,37 @@ Components used by only one screen stay under that screen's folder. Components s
       └── UI/
           └── OrderStatusBadge/  # Consumed by both OrderList and OrderDetail
               └── index.tsx
+  ```
+
+---
+
+### Rule 2.4: Strict Categorical Grouping (No Loose Files Without Group Folders)
+Every auxiliary code file (hooks, subcomponents, types, utilities, API clients) must reside in a dedicated, categorical group folder. The **only** file allowed at the root level of a page, screen, or component folder is the single entry-point coordinator (`index.tsx` or route `page.tsx`).
+- **Rationale:** Loose files floating at the root level clutter the directory, violate separation of concerns, break developer navigation models, and cause merge conflicts.
+- **Bad Example:**
+  ```
+  # ❌ BAD: Loose auxiliary files floating at page/screen root
+  app/(dashboard)/profile/
+  ├── page.tsx
+  ├── useForm.ts             # ❌ Loose hook at page top level!
+  ├── types.ts               # ❌ Loose types at page top level!
+  ├── validate.ts            # ❌ Loose helper at page top level!
+  └── ProfileCard.tsx        # ❌ Loose component without folder!
+  ```
+- **Good Example:**
+  ```
+  # ✅ GOOD: Strict categorical grouping under relevant folders
+  app/(dashboard)/profile/
+  ├── page.tsx               # Single route entry point (< 30 lines)
+  ├── hooks/
+  │   └── useForm.ts         # ✅ Categorized in hooks/
+  ├── types/
+  │   └── index.ts           # ✅ Categorized in types/
+  ├── utils/
+  │   └── validate.ts        # ✅ Categorized in utils/
+  └── UI/
+      └── ProfileCard/       # ✅ Categorized in UI/
+          └── index.tsx
   ```
 
 ---
@@ -265,11 +299,11 @@ Each feature and reusable component folder must expose only its designated publi
 ## Group 5: Logic / UI Separation
 
 ### Rule 5.1: Custom Hooks as the Logic Boundary
-Extract all side-effects, state machines, form validation schemas, and API mutations into a colocated custom hook. The UI component simply calls the hook and renders the returned state.
-- **Rationale:** Enables fast visual prototyping, clean unit testing of logic without DOM simulation, and straightforward Storybook integration.
+Extract all side-effects, state machines, form validation schemas, and API mutations into a dedicated custom hook placed inside a colocated `hooks/` folder (e.g. `hooks/useCreateItem.ts`). The UI component simply calls the hook and renders the returned state.
+- **Rationale:** Keeps logic isolated, prevents loose file sprawl at the component or screen root, enables fast visual prototyping, and facilitates clean unit testing without DOM simulation.
 - **Good Example:**
   ```tsx
-  // useCreateItem.ts
+  // hooks/useCreateItem.ts
   export function useCreateItem() {
     const [values, setValues] = useState<ItemFormValues>(initialValues);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -295,7 +329,7 @@ Extract all side-effects, state machines, form validation schemas, and API mutat
 When two screens share identical visual layouts but diverge in workflow logic (e.g., Create vs. Update/Edit):
 - **NEVER** combine both into a single screen chocked with `isEdit ? ... : ...` ternary conditionals.
 - **NEVER** duplicate the form layout across two independent components.
-- **DO:** Create separate screen components with dedicated hooks, both rendering a shared form component in the feature's `shared/UI/` folder.
+- **DO:** Create separate screen components with dedicated hooks in their respective `hooks/` folders, both rendering a shared form component in the feature's `shared/UI/` folder.
 - **Rationale:** Eliminates subtle form state pollution, divergent validation rules, and leaky reset effects.
 - **Good Example:**
   ```
@@ -303,10 +337,12 @@ When two screens share identical visual layouts but diverge in workflow logic (e
   ├── screens/
   │   ├── CreateItemScreen/
   │   │   ├── index.tsx              # Uses useCreateItem()
-  │   │   └── useCreateItem.ts
+  │   │   └── hooks/
+  │   │       └── useCreateItem.ts
   │   └── UpdateItemScreen/
   │       ├── index.tsx              # Uses useUpdateItem()
-  │       └── useUpdateItem.ts
+  │       └── hooks/
+  │           └── useUpdateItem.ts
   └── shared/
       └── UI/
           └── ItemForm/              # Pure presentation: takes values, handlers, submitLabel

@@ -46,12 +46,14 @@ During **Phase 2 (Design Audit)**, evaluate the target screen or component group
 
 ## 4. Color, Contrast & Semantic Consistency
 - [ ] **WCAG AA Compliance:** Does all body text achieve at least 4.5:1 contrast against its background? Does large text (>= 18pt or bold 14pt) achieve at least 3:1?
-- [ ] **Semantic Color Discipline:** Are colors used consistently with standard mental models?
-  - Green: Success, active, completed.
-  - Amber/Yellow: Warning, pending, caution.
-  - Red: Error, destructive, failed.
-  - Blue/Brand: Informational, primary interactions, links.
-  - Neutral: Structural chrome, backgrounds, disabled states.
+- [ ] **Anti-Rainbow Check:** Are sibling cards, stat summary blocks, and widgets styled with uniform neutral surfaces (`bg-card`, `bg-white`, `bg-neutral-900`) rather than arbitrary decorative rainbow colors (e.g., 4 stat cards with 4 different background or border hues)?
+- [ ] **Legacy Color Normalization:** If existing code uses multi-colored cards, borders, or icon containers without semantic necessity, are they marked for removal and normalization into clean neutral surfaces?
+- [ ] **Semantic Color Discipline:** Are colors used strictly and consistently with standard mental models?
+  - Green: Success, active, completed, positive deltas (`+12%`).
+  - Amber/Yellow: Warning, pending, caution, action needed.
+  - Red: Error, destructive, failed, critical negative deltas (`-4%`).
+  - Blue/Brand: Informational, primary interactions, links, active tabs.
+  - Neutral: Structural chrome, cards, backgrounds, borders, disabled states.
 - [ ] **Theme Cohesion:** Do light and dark modes both maintain equivalent contrast ratios and semantic color meanings without inverted glows?
 
 ## 5. Component Consistency

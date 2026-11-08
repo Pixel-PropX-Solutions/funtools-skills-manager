@@ -33,7 +33,8 @@ features/
 │   └── UI/
 │       └── UserProfileDrawer/       # Kept in owning feature!
 │           ├── index.tsx            # Table of Contents
-│           ├── useUserProfileDrawer.ts
+│           ├── hooks/
+│           │   └── useUserProfileDrawer.ts # Logic hook in hooks/
 │           └── UI/
 │               ├── DrawerHeader/
 │               │   └── index.tsx
@@ -54,7 +55,7 @@ Housed firmly inside the owning `users` feature:
 
 ```tsx
 import React from 'react';
-import { useUserProfileDrawer } from './useUserProfileDrawer';
+import { useUserProfileDrawer } from './hooks/useUserProfileDrawer';
 import { DrawerHeader } from './UI/DrawerHeader';
 import { ProfileForm } from './UI/ProfileForm';
 
@@ -82,7 +83,7 @@ export function UserProfileDrawer({ userId, isOpen, onClose }: UserProfileDrawer
 
 ---
 
-### File: `features/users/UI/UserProfileDrawer/useUserProfileDrawer.ts` (Logic Hook)
+### File: `features/users/UI/UserProfileDrawer/hooks/useUserProfileDrawer.ts` (Logic Hook)
 ```ts
 import { useState, useEffect } from 'react';
 

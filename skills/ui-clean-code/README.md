@@ -38,6 +38,10 @@ In frontend development, codebases often degrade into two extremes:
 - **Naming**: Always follow the existing project's naming conventions. If none exist, default to `PascalCase` for all component folders and entry files.
 - **Splitting**: Splitting is driven by UI structure, readability, and mental models—not arbitrary premature line counting. A default upper bound of **~400 lines** serves as a hard ceiling for mandatory refactoring.
 
+### 6. Strict Categorical Grouping (No Loose Code Files)
+- Every auxiliary code file (hooks, child components, types, utils) must reside in a dedicated categorical group folder (`hooks/`, `UI/`, `types/`, `utils/`).
+- The **only** file allowed at the root level of a page or component is the single entry-point coordinator (`index.tsx` or route `page.tsx`). Never leave loose hooks like `useForm.ts` floating naked at the page top level.
+
 ## Folder Blueprint Example
 
 ```
@@ -47,7 +51,8 @@ features/
     └── screens/
         └── CreateProfile/           # Screen Component (PascalCase fallback)
             ├── index.tsx            # Table of Contents
-            ├── useCreateProfile.ts  # Logic orchestration hook
+            ├── hooks/
+            │   └── useCreateProfile.ts  # Logic orchestration hook in hooks/
             └── UI/
                 ├── StepsIndicator/
                 │   └── index.tsx

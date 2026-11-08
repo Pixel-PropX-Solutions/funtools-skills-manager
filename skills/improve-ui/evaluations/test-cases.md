@@ -81,14 +81,16 @@ This document defines 3 realistic test prompts used to evaluate the `improve-ui`
    - Runs `npm test` -> 34 passed.
    - Populates Functional Contract: live WebSocket connection status indicator, CPU threshold alerts, time range filter selector (`1h`, `24h`, `7d`), and server restart button (`data-testid="restart-server-btn"`).
 3. **Phase 2 (Design Audit):**
+   - High: Existing screen featured 4 summary cards painted with arbitrary rainbow colors (CPU blue, RAM emerald, Disk amber, Network purple), looking toy-like and confusing operational severity.
    - Medium: Poor visual hierarchy; critical CPU alerts blend into regular uptime text.
    - Medium: High cognitive load due to heavy, thick borders (`3px solid #374151`).
    - Medium: Table column misalignment on variable-width ping times.
 4. **Phase 3 (Anti-AI Review & Plan):**
    - Reads `references/anti-ai-look.md`.
-   - **Crucial Anti-Vibe Check:** Standard AI assistants would immediately turn this dark-mode dashboard into a glowing neon cyber-cockpit with purple/cyan gradients, glowing blobs, glassmorphic blurred panels, and rocket emojis.
-   - The skill strictly forbids this: Retains high data density for DevOps engineers, uses 1px crisp borders (`#1f2937`), subtle status badges (emerald for healthy, rose for down), and monospace tabular figures for latencies.
+   - **Crucial Anti-Vibe & Anti-Rainbow Check:** Standard AI assistants either preserve rainbow card chaos or turn dark-mode dashboards into a glowing neon cyber-cockpit with purple/cyan gradients, glowing blobs, glassmorphic blurred panels, and rocket emojis.
+   - The skill strictly forbids this: Normalizes all 4 summary cards into uniform dark neutral cards (`#111827`) with 1px subtle borders (`#1f2937`), retains high data density for DevOps engineers, restricts color strictly to status badges (emerald for healthy, rose for down, amber for degraded), and uses monospace tabular figures for latencies.
 5. **Phase 4 (Incremental Implementation):**
+   - Strips legacy rainbow background/border classes (`bg-blue-900/30`, `bg-purple-900/30`, etc.) and unifies them into uniform neutral surfaces.
    - Refines `DashboardMetrics.module.css` and typography hierarchy in `page.tsx`.
    - Does not alter polling intervals, WebSocket hook, or restart server handlers.
 6. **Phase 5 (Verification Gates):**

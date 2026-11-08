@@ -11,6 +11,7 @@ This skill enforces strict adherence to authentic, disciplined product design. *
 | AI Tropes / Tells | Why It Fails | What to Do Instead |
 | :--- | :--- | :--- |
 | **Purple/Indigo/Cyan Gradients & Neon Glows** | Screams "AI generated boilerplate" or crypto landing page. Distracts from content. | Use the application's existing brand primary color with neutral grays/slates. |
+| **Rainbow UI & Arbitrary Multi-Coloring** | Sibling summary cards, stat widgets, or badges painted in arbitrary rainbow hues (e.g. blue, green, purple, amber) look cheap, toy-like, and destroy visual hierarchy. | Keep sibling cards uniform in clean neutral styling (`bg-card`, `bg-white`, `border-neutral-200`/`800`). Confine color strictly to semantic indicators (e.g. green `+12%` delta tag, red `-3%` churn tag, warning callouts). |
 | **Pervasive Glassmorphism & Blurs** | Heavy `backdrop-filter: blur()`, semi-transparent frosted panels cause poor contrast, readability problems, and GPU lag. | Use solid, opaque surfaces with subtle border dividers (`border: 1px solid var(--border)`). |
 | **Everything as a Rounded Card** | Wrapping every list item, stat, and input in `rounded-2xl` cards with `p-6` destroys visual rhythm and wastes vertical space. | Use flat rows, simple tabular layouts, subtle dividers (`divide-y`), or slight background shifts. Keep corner radii modest (typically 4px–8px / `rounded-md`). |
 | **Emoji as Icons or Badges** | Placing 🚀, ✨, 🔥, 📊 next to headers or inside buttons looks amateurish and unbranded. | Use the project's existing SVG icon library (Lucide, Heroicons, Material, FontAwesome) with consistent size and stroke. |
@@ -27,6 +28,69 @@ This skill enforces strict adherence to authentic, disciplined product design. *
 
 ### A. Color & Surfaces
 - **Restrained Palette:** Exactly one primary brand accent, a functional neutral scale (white to dark gray/slate), and semantic colors (success green, warning amber, error red, info blue) reserved strictly for status.
+- **Anti-Rainbow Discipline & Card Uniformity:**
+  - Sibling components (such as a 4-card metric or stat summary grid) must share uniform, disciplined neutral surfaces (`bg-card` / `bg-white` / `bg-neutral-900`, 1px neutral hairline border `border-neutral-200`/`800`).
+  - **Never** paint each summary card with a different rainbow background (e.g., Card 1 blue, Card 2 green, Card 3 amber, Card 4 purple) or decorative rainbow borders. It looks cheap, chaotic, and amateurish.
+  - Color belongs **inside** the card strictly where required by semantics: for example, a subtle green `+12.4%` badge for positive growth or a red `-3.1%` badge for churn.
+- **Remediating Existing Rainbows in Legacy Code:**
+  - When auditing and improving an existing screen, if you encounter legacy rainbow cards, multi-colored border accents, or arbitrary icon background tints, **actively strip them**.
+  - Normalize all cards to the application's clean neutral surface system.
+  - Isolate colors strictly to the 5 semantic roles:
+    1. **Danger / Destructive (Red):** Errors, delete actions, critical threshold warnings.
+    2. **Warning / Caution (Amber/Yellow):** Expiring items, pending reviews, non-blocking cautions.
+    3. **Success / Positive (Green):** Verified states, positive trends, completed statuses.
+    4. **Primary Brand Accent (Single Color):** Key focal interactive controls (primary buttons, active tabs).
+    5. **Informational / Neutral (Slate/Gray):** General metrics, secondary chrome, inactive states.
+- **Before vs. After: Sibling Metric Cards:**
+  ```tsx
+  // ❌ BAD: Cheap, noisy rainbow cards
+  <div className="grid grid-cols-4 gap-4">
+    <div className="bg-blue-50 border-blue-200 text-blue-900 p-4 rounded-xl">
+      <h4>Total Revenue</h4><p>$45,230</p>
+    </div>
+    <div className="bg-emerald-50 border-emerald-200 text-emerald-900 p-4 rounded-xl">
+      <h4>Active Users</h4><p>2,340</p>
+    </div>
+    <div className="bg-amber-50 border-amber-200 text-amber-900 p-4 rounded-xl">
+      <h4>Pending Tickets</h4><p>18</p>
+    </div>
+    <div className="bg-purple-50 border-purple-200 text-purple-900 p-4 rounded-xl">
+      <h4>Conversion Rate</h4><p>4.2%</p>
+    </div>
+  </div>
+
+  // ✅ GOOD: Clean, uniform neutral surfaces with semantic indicators
+  <div className="grid grid-cols-4 gap-4">
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 rounded-lg">
+      <span className="text-xs font-medium text-neutral-500">Total Revenue</span>
+      <div className="flex items-baseline justify-between mt-1">
+        <span className="text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">$45,230</span>
+        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">+12.4%</span>
+      </div>
+    </div>
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 rounded-lg">
+      <span className="text-xs font-medium text-neutral-500">Active Users</span>
+      <div className="flex items-baseline justify-between mt-1">
+        <span className="text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">2,340</span>
+        <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded">+5.1%</span>
+      </div>
+    </div>
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 rounded-lg">
+      <span className="text-xs font-medium text-neutral-500">Pending Tickets</span>
+      <div className="flex items-baseline justify-between mt-1">
+        <span className="text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">18</span>
+        <span className="text-xs font-medium text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">Needs action</span>
+      </div>
+    </div>
+    <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 p-4 rounded-lg">
+      <span className="text-xs font-medium text-neutral-500">Conversion Rate</span>
+      <div className="flex items-baseline justify-between mt-1">
+        <span className="text-2xl font-semibold tabular-nums text-neutral-900 dark:text-neutral-50">4.2%</span>
+        <span className="text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">-0.4%</span>
+      </div>
+    </div>
+  </div>
+  ```
 - **Surface Elevation via Borders:** Prefer 1px hairline borders (`border-neutral-200` in light mode, `border-neutral-800` in dark mode) and subtle surface shifts (`bg-neutral-50` vs `bg-white`) over heavy multi-layered drop shadows (`box-shadow`).
 - **Dark Mode Discipline:** Avoid pitch-black (`#000000`) paired with neon cyan. Use deep slate or charcoal surfaces (`#0f172a`, `#18181b`) with muted borders and desaturated status tags.
 
@@ -58,21 +122,24 @@ This skill enforces strict adherence to authentic, disciplined product design. *
 
 ## 3. The "Smell Test" Checklist
 
-Before declaring any UI improvement complete in Phase 5, run this 5-question smell test:
+Before declaring any UI improvement complete in Phase 5, run this 6-question smell test:
 
 1. **The Template Test:**
    * *Question:* "Could this screen belong to any generic template or AI starter kit?"
    * *Check:* What specific detail (custom iconography, domain terminology, brand token, data layout) ties it authentically to this product and its users?
-2. **The Gradient & Shadow Test:**
+2. **The Rainbow & Color Restraint Test:**
+   * *Question:* "Are cards, stats, or UI elements colored with arbitrary rainbow hues (e.g. 4 stat cards with 4 different background or border colors)?"
+   * *Action:* If yes, remove arbitrary colors immediately. Unify cards with consistent neutral surfaces and borders. Restrict color to semantic warnings, danger actions, success states, or the single primary brand accent.
+3. **The Gradient & Shadow Test:**
    * *Question:* "Is there any purple/blue/cyan gradient, glowing border, or floating glassmorphic card?"
    * *Action:* If yes, remove it immediately. Replace with solid brand tokens and subtle 1px border dividers.
-3. **The Emoji & Clutter Test:**
+4. **The Emoji & Clutter Test:**
    * *Question:* "Are there any emojis serving as UI icons, or decorative shapes carrying no information?"
    * *Action:* If yes, replace emojis with project SVG icons or remove them entirely.
-4. **The Density Test:**
+5. **The Density Test:**
    * *Question:* "Did we inflate spacing so much that users can see less relevant data than before?"
    * *Action:* If yes, tighten the vertical rhythm and restore domain-appropriate density.
-5. **The Microcopy Test:**
+6. **The Microcopy Test:**
    * *Question:* "Did we add vague marketing phrases or generic placeholder copy?"
    * *Action:* Revert to authentic domain terminology.
 

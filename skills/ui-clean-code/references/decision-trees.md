@@ -65,7 +65,7 @@ flowchart TD
     CheckCeiling -->|Yes - Exceeds ~400 lines| Decompose
     CheckCeiling -->|No| CheckLogic{"Are state, API calls & effects<br/>mixed directly with JSX markup?"}
     
-    CheckLogic -->|Yes| ExtractHook["Extract logic into colocated Custom Hook<br/>e.g., use[ComponentName].ts"]
+    CheckLogic -->|Yes| ExtractHook["Extract logic into Custom Hook in hooks/<br/>e.g., hooks/use[ComponentName].ts"]
     CheckLogic -->|No| KeepSingle["Keep as a single cohesive file<br/>(Avoid premature fragmentation)"]
 
     classDef split fill:#fee2e2,stroke:#b91c1c,stroke-width:2px;
@@ -82,10 +82,11 @@ flowchart TD
 
 | Criterion | Healthy / Coherent State | Splitting / Refactor Trigger | Action Required |
 | :--- | :--- | :--- | :--- |
+| **Categorical Grouping** | Only entry coordinator (`index.tsx`/`page.tsx`) at root; all auxiliary files in categorical folders | Naked files (`useForm.ts`, `types.ts`, `utils.ts`) floating at root | Move into respective `hooks/`, `UI/`, `types/`, `utils/` folders |
 | **Cognitive Understandability** | Developer understands full layout in < 10 seconds | Hard to follow, mental fatigue reading through markup | Split distinct layout sections into `UI/[SubComponent]/` |
 | **UI Structure & Layout** | Single cohesive visual block | Multiple distinct sections (steps, tabs, distinct panels) | Group distinct sections into `UI/[SubComponent]/` |
 | **Hard Line-Count Ceiling** | < 300 lines | **Approaching ~400 lines** | Mandatory decomposition into sub-components or hooks |
 | **`index.tsx` TOC Quality** | Reads as a clean table of contents (< 60–80 lines) | Clogged with inline markup or deep sub-branches | Move inner layout blocks to `UI/` |
-| **Logic / View Mixing** | Custom hook handles state/effects | Raw API calls, effects, and complex state in view | Extract to colocated `use[Component].ts` |
+| **Logic / View Mixing** | Custom hook in `hooks/` handles state/effects | Raw API calls, effects, and complex state in view | Extract to `hooks/use[Component].ts` |
 | **Ternary Screen Branches** | 0 – 2 simple visual toggles | `isEdit ? ... : ...` routing/mode branches | Refactor to separate screens + shared form |
 | **Consumer Count** | 1 consumer | ≥ 2 consumers | Apply LCA placement algorithm |
